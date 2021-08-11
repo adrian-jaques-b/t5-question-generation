@@ -57,9 +57,20 @@ class Splitter:
         return [re.sub(r'\s*\Z', ' ', i) for i in out[:-1]] + [out[-1]]
 
 
+class BengaliSplitter:
+
+    def __init__(self, splitter: str = '।'):
+        self.splitter = splitter
+
+    def __call__(self, document):
+        return [re.sub(r'\s*\Z', ' ', i) for i in document.split(self.splitter)]
+
+
 def setup_splitter(language):
     if language in ['ja', 'jp']:
         return JASplitter()
+    elif language in ['bengali', 'be', 'bn']:
+        return BengaliSplitter()
     else:
         return Splitter()
 

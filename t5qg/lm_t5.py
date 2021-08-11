@@ -22,7 +22,8 @@ TASK_PREFIX = {
     "qa": "question",
     "qg": "generate question"
 }
-ADDITIONAL_SP_TOKENS = {'sep': '<sep>', 'hl': '<hl>'}
+# ADDITIONAL_SP_TOKENS = {'sep': '<sep>', 'hl': '<hl>'}
+ADDITIONAL_SP_TOKENS = {'hl': '<hl>'}
 __all__ = ('T5', 'ADDITIONAL_SP_TOKENS', 'TASK_PREFIX')
 
 
@@ -299,7 +300,8 @@ class T5:
             list_context, list_highlight=list_sentence, task_type='ans_ext', drop_overflow_text=drop_overflow_text,
             skip_overflow_error=skip_overflow_error, num_workers=num_workers, cache_path=cache_path,
             num_beams=num_beams, batch_size=batch_size, parallel=parallel)
-        out = list(itertools.chain(*[[clean(ii) for ii in i.split(ADDITIONAL_SP_TOKENS['sep'])] for i in out]))
+        # out = list(itertools.chain(*[[clean(ii) for ii in i.split(ADDITIONAL_SP_TOKENS['sep'])] for i in out]))
+        out = [clean(i) for i in out]
         out = list(filter(None, out))  # remove None
         out = list(filter(lambda x: x in context, out))  # remove answer out of context
         if len(out) == 0:
