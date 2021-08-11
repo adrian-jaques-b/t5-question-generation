@@ -95,7 +95,6 @@ class Dataset:
             output_prefix = '{}/{}/processed/{}'.format(self.cache, self.data_alias, split)
 
         logging.info("generating examples: {}".format(split))
-        os.makedirs(self.cache, exist_ok=True)
         full_examples = []
         for la in language:
             if self.data_alias == 'squad':
@@ -104,6 +103,8 @@ class Dataset:
             else:
                 output = '{}.{}.jsonl'.format(output_prefix, la)
                 path = '{}/raw/{}/{}.{}.jsonl'.format(self.cache, self.data_alias, self.all_language_alias_tydiqa[la], split)
+            os.makedirs(os.path.dirname(output), exist_ok=True)
+            os.makedirs(os.path.dirname(path), exist_ok=True)
             # exclude YES/NO questions or unanswerable questions
             if os.path.exists(output):
                 with open(output, 'r') as f:
