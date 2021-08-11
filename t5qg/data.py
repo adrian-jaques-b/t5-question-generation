@@ -112,7 +112,7 @@ class Dataset:
             else:
                 if not os.path.exists(path):
                     wget('https://github.com/asahi417/t5-question-generation/releases/download/0.0.0/{}.zip'.format(self.data_alias),
-                         cache_dir='{}/raw/{}'.format(self.cache, self.data_alias))
+                         cache_dir='{}/raw'.format(self.cache))
                 with open(path, 'r') as f:
                     data = [json.loads(i) for i in f.read().split('\n') if len(i)]
                 examples = []
