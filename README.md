@@ -6,6 +6,9 @@ following [huggingface tutorial](https://github.com/patil-suraj/question_generat
 
 We extend the library to cover recently released multilingual T5, namely [mT5](https://arxiv.org/pdf/2010.11934.pdf).
 
+## TODO
+- create separate evaluation script
+
 ### Get Started 🚀
 ```shell
 git clone https://github.com/asahi417/t5-question-generation

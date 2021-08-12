@@ -22,6 +22,7 @@ def get_options():
     parser.add_argument('--random-seed', help='random seed', default=1234, type=int)
     parser.add_argument('--max-length', default=512, type=int, help='max sequence length for input sequence')
     parser.add_argument('--max-length-output', default=32, type=int, help='max sequence length for output sequence')
+    parser.add_argument('--label-smoothing', help='label smoothing', default=0.0, type=float)
     # monitoring parameter
     parser.add_argument('--debug', help='log mode', action='store_true')
     parser.add_argument('--activate-tensorboard', help='log mode', action='store_true')
@@ -50,7 +51,8 @@ def main():
         max_length=opt.max_length,
         max_length_output=opt.max_length_output,
         fp16=opt.fp16,
-        gradient_accumulation_steps=opt.gradient_accumulation_steps
+        gradient_accumulation_steps=opt.gradient_accumulation_steps,
+        label_smoothing=opt.label_smoothing
     )
     trainer.train(
         epoch_save=opt.epoch_save,

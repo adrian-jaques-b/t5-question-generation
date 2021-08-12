@@ -134,7 +134,7 @@ class GridSearcher:
             logging.info('## 1st RUN (EVAL): Configuration {}/{} ##'.format(n, len(checkpoints)))
             checkpoint_dir_model = '{}/epoch_{}'.format(checkpoint_dir, self.epoch_partial)
             if not os.path.exists('{}/eval/metric.json'.format(checkpoint_dir_model)):
-                evaluate_qg(model=checkpoint_dir_model, export_dir='{}/eval'.format(checkpoint_dir_model))
+                evaluate_qg(model=checkpoint_dir_model, export_dir='{}/eval'.format(checkpoint_dir_model), batch=self.batch_eval)
 
             with open('{}/eval/metric.json'.format(checkpoint_dir_model), 'r') as f:
                 metric = json.load(f)
