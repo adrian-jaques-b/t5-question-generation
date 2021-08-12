@@ -25,7 +25,7 @@ def get_options():
     # grid search
     parser.add_argument('--n-beams-eval', help='', default=4, type=int)
     parser.add_argument('--batch-eval', help='', default=128, type=int)
-    parser.add_argument('--metric', default='dev/BLeu_4', type=str)
+    parser.add_argument('--metric', default='dev/Bleu_4', type=str)
     parser.add_argument('--n-max-config', help='', default=5, type=int)
     parser.add_argument('--epoch-partial', help='epoch', default=2, type=int)
     parser.add_argument('--max-length', default='512', type=str, help='max sequence length for input sequence')
