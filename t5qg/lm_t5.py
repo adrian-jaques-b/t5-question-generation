@@ -76,7 +76,7 @@ def label_smoothed_loss(logits, labels, epsilon):
     if labels.dim() == log_probs.dim() - 1:
         labels = labels.unsqueeze(-1)
 
-    padding_mask = labels.eq(CE_IGNORE_INDEX).to(log_probs.device)
+    padding_mask = labels.eq(CE_IGNORE_INDEX)
     # In case the ignore_index is -100, the gather will fail, so we replace labels by 0. The padding_mask
     # will ignore them in any case.
     labels.clamp_min_(0)
@@ -85,8 +85,8 @@ def label_smoothed_loss(logits, labels, epsilon):
     # works for fp16 input tensor too, by internally upcasting it to fp32
     smoothed_loss = log_probs.sum(dim=-1, keepdim=True, dtype=torch.float32)
 
-    nll_loss.masked_fill_(padding_mask, 0.0)
-    smoothed_loss.masked_fill_(padding_mask, 0.0)
+    nll_loss.masked_fill_(padding_mask.to(log_probs.device), 0.0)
+    smoothed_loss.masked_fill_(padding_mask.to(log_probs.device), 0.0)
 
     # Take the mean over the label dimensions, then divide by the number of active elements (i.e. not-padded):
     num_active_elements = padding_mask.numel() - padding_mask.long().sum()
