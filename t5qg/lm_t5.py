@@ -81,7 +81,7 @@ def label_smoothed_loss(logits, labels, epsilon):
     # will ignore them in any case.
     labels.clamp_min_(0)
 
-    nll_loss = log_probs.gather(dim=-1, index=labels)
+    nll_loss = log_probs.gather(dim=-1, index=labels.to(log_probs.device))
     # works for fp16 input tensor too, by internally upcasting it to fp32
     smoothed_loss = log_probs.sum(dim=-1, keepdim=True, dtype=torch.float32)
 
@@ -388,8 +388,7 @@ class T5:
 
     def encode_to_loss(self, encode: Dict):
         assert 'labels' in encode
-        encode = {k: v.to(self.device) for k, v in encode.items()}
-        output = self.model(**encode)
+        output = self.model(**{k: v.to(self.device) for k, v in encode.items()})
         if self.label_smoothing is None or self.label_smoothing == 0.0:
             return output['loss'].mean() if self.parallel else output['loss']
         else:
