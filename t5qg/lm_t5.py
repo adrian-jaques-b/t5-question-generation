@@ -72,6 +72,7 @@ def load_language_model(model_name, cache_dir: str = None):
 
 def label_smoothed_loss(logits, labels, epsilon):
     """ https://github.com/huggingface/transformers/blob/55bb4c06f7be141c6d895dbe1f11018dc8580b2d/src/transformers/trainer_pt_utils.py#L430 """
+    print(logits)
     log_probs = - functional.log_softmax(logits, dim=-1)
     if labels.dim() == log_probs.dim() - 1:
         labels = labels.unsqueeze(-1)
@@ -80,6 +81,9 @@ def label_smoothed_loss(logits, labels, epsilon):
     # In case the ignore_index is -100, the gather will fail, so we replace labels by 0. The padding_mask
     # will ignore them in any case.
     labels.clamp_min_(0)
+    print(labels)
+    print(log_probs)
+
     nll_loss = log_probs.gather(dim=-1, index=labels)
     # works for fp16 input tensor too, by internally upcasting it to fp32
     smoothed_loss = log_probs.sum(dim=-1, keepdim=True, dtype=torch.float32)
