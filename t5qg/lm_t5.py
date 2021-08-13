@@ -76,7 +76,7 @@ def label_smoothed_loss(logits, labels, epsilon):
     if labels.dim() == log_probs.dim() - 1:
         labels = labels.unsqueeze(-1)
 
-    padding_mask = labels.eq(CE_IGNORE_INDEX)
+    padding_mask = labels.eq(CE_IGNORE_INDEX).to(log_probs.device)
     # In case the ignore_index is -100, the gather will fail, so we replace labels by 0. The padding_mask
     # will ignore them in any case.
     labels.clamp_min_(0)
