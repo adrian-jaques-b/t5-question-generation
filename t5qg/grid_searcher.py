@@ -171,11 +171,13 @@ class GridSearcher:
         for n, checkpoint_dir in enumerate(checkpoints):
             logging.info('## 2nd RUN (EVAL): Configuration {}/{} ##'.format(n, len(checkpoints)))
             for checkpoint_dir_model in sorted(glob.glob('{}/epoch_*'.format(checkpoint_dir))):
-
                 if not os.path.exists('{}/eval/metric.json'.format(checkpoint_dir_model)):
-                    evaluate_qg(model=checkpoint_dir_model, export_dir='{}/eval'.format(checkpoint_dir_model), batch=self.batch_eval)
+                    try:
+                        evaluate_qg(model=checkpoint_dir_model, export_dir='{}/eval'.format(checkpoint_dir_model), batch=self.batch_eval)
+                    except Exception:
+                        logging.exception('ERROR IN EVALUATION')
+                        continue
 
-                evaluate_qg(model=checkpoint_dir_model, export_dir='{}/eval'.format(checkpoint_dir_model))
                 with open('{}/eval/metric.json'.format(checkpoint_dir_model), 'r') as f:
                     metric = json.load(f)
                     metrics[checkpoint_dir_model] = metric[self.split][self.metric]
