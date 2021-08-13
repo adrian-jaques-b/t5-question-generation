@@ -151,11 +151,11 @@ class GridSearcher:
         # 2nd RUN #
         ###########
 
-        metric = metric[:min(len(metric), self.n_max_config)]
+        metrics = metrics[:min(len(metrics), self.n_max_config)]
         checkpoints = []
-        for n, (model_num, _metric) in enumerate(metric):
+        for n, (model_num, _metric) in enumerate(metrics):
             logging.info('## 2nd RUN: Configuration {}/{}: {}/{} = {}'.format(
-                n, len(metric), self.split, self.metric, _metric))
+                n, len(metrics), self.split, self.metric, _metric))
             checkpoint_dir = '{}/model_{}'.format(self.checkpoint_dir, n)
             if os.path.exists('{}/epoch_{}'.format(checkpoint_dir, self.epoch)):
                 trainer = Trainer(checkpoint_dir=checkpoint_dir)
@@ -176,11 +176,11 @@ class GridSearcher:
                     metric = json.load(f)
                     metrics[checkpoint_dir_model] = metric[self.split][self.metric]
 
-        metric = sorted(metric.items(), key=lambda x: x[1], reverse=True)
-        logging.info('2nd RUN RESULTS: \n{}'.format(str(metric)))
-        for n, (k, v) in enumerate(metric):
+        metrics = sorted(metrics.items(), key=lambda x: x[1], reverse=True)
+        logging.info('2nd RUN RESULTS: \n{}'.format(str(metrics)))
+        for n, (k, v) in enumerate(metrics):
             logging.info('\t * rank: {} | metric: {} | model: {} |'.format(n, round(v, 3), k))
 
         with open('{}/metric.2nd.json'.format(self.checkpoint_dir), 'w') as f:
-            json.dump(metric, f)
+            json.dump(metrics, f)
 
