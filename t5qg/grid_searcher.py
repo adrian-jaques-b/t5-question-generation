@@ -157,7 +157,7 @@ class GridSearcher:
             logging.info('## 2nd RUN: Configuration {}/{}: {}/{} = {}'.format(
                 n, len(metrics), self.split, self.metric, _metric))
             checkpoint_dir = '{}/model_{}'.format(self.checkpoint_dir, n)
-            if os.path.exists('{}/epoch_{}'.format(checkpoint_dir, self.epoch)):
+            if not os.path.exists('{}/epoch_{}'.format(checkpoint_dir, self.epoch)):
                 trainer = Trainer(checkpoint_dir=checkpoint_dir)
                 trainer.train()
 
