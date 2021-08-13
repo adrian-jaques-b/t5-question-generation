@@ -388,11 +388,13 @@ class T5:
 
     def encode_to_loss(self, encode: Dict):
         assert 'labels' in encode
-        output = self.model(**{k: v.to(self.device) for k, v in encode.items()})
         if self.label_smoothing is None or self.label_smoothing == 0.0:
+            output = self.model(**{k: v.to(self.device) for k, v in encode.items()})
             return output['loss'].mean() if self.parallel else output['loss']
         else:
-            return label_smoothed_loss(output['logits'], encode['labels'].to(self.device), self.label_smoothing)
+            labels = encode.pop('labels')
+            output = self.model(**{k: v.to(self.device) for k, v in encode.items()})
+            return label_smoothed_loss(output['logits'], labels.to(self.device), self.label_smoothing)
 
     def get_data_loader(self,
                         inputs,
