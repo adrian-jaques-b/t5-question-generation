@@ -82,10 +82,10 @@ def label_smoothed_loss(logits, labels, epsilon):
     labels.clamp_min_(0)
 
     nll_loss = log_probs.gather(dim=-1, index=labels)
+    nll_loss.masked_fill_(padding_mask, 0.0)
+
     # works for fp16 input tensor too, by internally upcasting it to fp32
     smoothed_loss = log_probs.sum(dim=-1, keepdim=True, dtype=torch.float32)
-
-    nll_loss.masked_fill_(padding_mask, 0.0)
     smoothed_loss.masked_fill_(padding_mask, 0.0)
 
     # Take the mean over the label dimensions, then divide by the number of active elements (i.e. not-padded):

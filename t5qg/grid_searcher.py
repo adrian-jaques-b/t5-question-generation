@@ -169,7 +169,7 @@ class GridSearcher:
             for checkpoint_dir_model in glob.glob('{}/epoch_*'.format(checkpoint_dir)):
 
                 if not os.path.exists('{}/eval/metric.json'.format(checkpoint_dir_model)):
-                    evaluate_qg(model=checkpoint_dir, export_dir='{}/eval'.format(checkpoint_dir_model))
+                    evaluate_qg(model=checkpoint_dir_model, export_dir='{}/eval'.format(checkpoint_dir_model))
 
                 evaluate_qg(model=checkpoint_dir_model, export_dir='{}/eval'.format(checkpoint_dir_model))
                 with open('{}/eval/metric.json'.format(checkpoint_dir_model), 'r') as f:
