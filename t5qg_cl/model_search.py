@@ -30,8 +30,8 @@ def get_options():
     parser.add_argument('--epoch-partial', help='epoch', default=2, type=int)
     parser.add_argument('--max-length', default='512', type=str, help='max sequence length for input sequence')
     parser.add_argument('--max-length-output', default='32', type=str, help='max sequence length for output sequence')
-    parser.add_argument('-l', '--lr', help='learning rate', default='1e-5,5e-5,1e-4,5e-4,1e-3', type=str)
-    parser.add_argument('--label-smoothing', help='label smoothing', default='0.0,0.1,0.2', type=str)
+    parser.add_argument('-l', '--lr', help='learning rate', default='5e-5,1e-4,5e-4,1e-3', type=str)
+    parser.add_argument('--label-smoothing', help='label smoothing', default='0.1,0.2,0.3,0.4', type=str)
     parser.add_argument('--random-seed', help='random seed', default='1234', type=str)
     return parser.parse_args()
 
