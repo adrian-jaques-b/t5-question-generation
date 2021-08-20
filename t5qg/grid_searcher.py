@@ -2,11 +2,21 @@ import glob
 import json
 import os
 import logging
+import string
+import random
 from typing import List
 from itertools import product
 
 from .trainer import Trainer
 from .evaluator import evaluate_qg
+
+
+def get_random_string(length: int = 6, exclude: List = None):
+    tmp = ''.join(random.choice(string.ascii_lowercase) for _ in range(length))
+    if exclude:
+        while tmp in exclude:
+            tmp = ''.join(random.choice(string.ascii_lowercase) for _ in range(length))
+    return tmp
 
 
 class GridSearcher:
@@ -36,7 +46,6 @@ class GridSearcher:
 
         # static configs
         self.static_config = {
-            # 'checkpoint_dir': checkpoint_dir,
             'dataset': dataset,
             'model': model,
             'task_type': task_type,
@@ -116,6 +125,12 @@ class GridSearcher:
         ###########
 
         checkpoints = []
+
+        ckpt_exist = {}
+        for trainer_config in glob.glob('{}/model_*/trainer_config.json'.format(self.checkpoint_dir)):
+            with open(trainer_config, 'r') as f:
+                ckpt_exist[os.path.dirname(trainer_config)] = json.load(f)
+
         for n, dynamic_config in enumerate(self.all_dynamic_configs):
             logging.info('## 1st RUN: Configuration {}/{} ##'.format(n, len(self.all_dynamic_configs)))
             config = self.static_config.copy()
@@ -123,7 +138,14 @@ class GridSearcher:
                 'max_length': dynamic_config[0], 'max_length_output': dynamic_config[1], 'batch': dynamic_config[2],
                 'lr': dynamic_config[3], 'label_smoothing': dynamic_config[4], 'random_seed': dynamic_config[5],
             })
-            checkpoint_dir = '{}/model_{}'.format(self.checkpoint_dir, n)
+            duplicated_ckpt = [k for k, v in ckpt_exist.items() if v == config]
+
+            if len(duplicated_ckpt) > 1:
+                logging.info('skip as the config exists at {} \n{}'.format(duplicated_ckpt, config))
+                continue
+
+            model_ckpt = get_random_string(exclude=[k.replace('model_', '') for k in ckpt_exist.keys()])
+            checkpoint_dir = '{}/model_{}'.format(self.checkpoint_dir, model_ckpt)
             if not os.path.exists('{}/epoch_{}'.format(checkpoint_dir, self.epoch_partial)):
                 trainer = Trainer(checkpoint_dir=checkpoint_dir, **config)
                 trainer.train(epoch_partial=self.epoch_partial, epoch_save=None)
