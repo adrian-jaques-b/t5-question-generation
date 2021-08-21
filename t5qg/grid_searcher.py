@@ -151,7 +151,7 @@ class GridSearcher:
 
             model_ckpt = get_random_string(exclude=ckpt_name_exist + ckpt_name_made)
             checkpoint_dir = '{}/model_{}'.format(self.checkpoint_dir, model_ckpt)
-            assert os.path.exists('{}/epoch_{}'.format(checkpoint_dir, self.epoch_partial)),\
+            assert not os.path.exists('{}/epoch_{}'.format(checkpoint_dir, self.epoch_partial)),\
                 '{}/epoch_{}'.format(checkpoint_dir, self.epoch_partial)
             trainer = Trainer(checkpoint_dir=checkpoint_dir, **config)
             trainer.train(epoch_partial=self.epoch_partial, epoch_save=1)
