@@ -144,11 +144,18 @@ class GridSearcher:
                 logging.info('skip as the config exists at {} \n{}'.format(duplicated_ckpt, config))
                 continue
 
-            model_ckpt = get_random_string(exclude=[k.replace('model_', '') for k in ckpt_exist.keys()])
+            ckpt_name_exist = [os.path.basename(k).replace('model_', '') for k in ckpt_exist.keys()]
+            print(ckpt_name_exist)
+            ckpt_name_made = [os.path.basename(c).replace('model_', '') for c in checkpoints]
+            print(ckpt_name_made)
+
+            model_ckpt = get_random_string(exclude=ckpt_name_exist + ckpt_name_made)
             checkpoint_dir = '{}/model_{}'.format(self.checkpoint_dir, model_ckpt)
-            if not os.path.exists('{}/epoch_{}'.format(checkpoint_dir, self.epoch_partial)):
-                trainer = Trainer(checkpoint_dir=checkpoint_dir, **config)
-                trainer.train(epoch_partial=self.epoch_partial, epoch_save=None)
+            assert os.path.exists('{}/epoch_{}'.format(checkpoint_dir, self.epoch_partial)),\
+                '{}/epoch_{}'.format(checkpoint_dir, self.epoch_partial)
+            trainer = Trainer(checkpoint_dir=checkpoint_dir, **config)
+            trainer.train(epoch_partial=self.epoch_partial, epoch_save=1)
+
             checkpoints.append(checkpoint_dir)
 
         metrics = {}
@@ -157,7 +164,9 @@ class GridSearcher:
             checkpoint_dir_model = '{}/epoch_{}'.format(checkpoint_dir, self.epoch_partial)
             if not os.path.exists('{}/eval/metric.json'.format(checkpoint_dir_model)):
                 try:
-                    evaluate_qg(model=checkpoint_dir_model, export_dir='{}/eval'.format(checkpoint_dir_model), batch=self.batch_eval)
+                    evaluate_qg(model=checkpoint_dir_model,
+                                export_dir='{}/eval'.format(checkpoint_dir_model),
+                                batch=self.batch_eval)
                 except Exception:
                     logging.exception('ERROR IN EVALUATION')
                     continue
