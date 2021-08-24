@@ -145,9 +145,7 @@ class GridSearcher:
                 continue
 
             ckpt_name_exist = [os.path.basename(k).replace('model_', '') for k in ckpt_exist.keys()]
-            print(ckpt_name_exist)
             ckpt_name_made = [os.path.basename(c).replace('model_', '') for c in checkpoints]
-            print(ckpt_name_made)
 
             model_ckpt = get_random_string(exclude=ckpt_name_exist + ckpt_name_made)
             checkpoint_dir = '{}/model_{}'.format(self.checkpoint_dir, model_ckpt)
@@ -188,15 +186,17 @@ class GridSearcher:
 
         metrics = metrics[:min(len(metrics), self.n_max_config)]
         checkpoints = []
-        for n, (model_num, _metric) in enumerate(metrics):
+        for n, (checkpoint_dir_model, _metric) in enumerate(metrics):
             logging.info('## 2nd RUN: Configuration {}/{}: {}/{} = {}'.format(
                 n, len(metrics), self.split, self.metric, _metric))
-            checkpoint_dir = '{}/model_{}'.format(self.checkpoint_dir, n)
-            if not os.path.exists('{}/epoch_{}'.format(checkpoint_dir, self.epoch)):
-                trainer = Trainer(checkpoint_dir=checkpoint_dir)
+            model_ckpt = os.path.dirname(checkpoint_dir_model)
+            print(model_ckpt, checkpoint_dir_model)
+            # checkpoint_dir = '{}/model_{}'.format(self.checkpoint_dir, n)
+            if not os.path.exists('{}/epoch_{}'.format(model_ckpt, self.epoch)):
+                trainer = Trainer(checkpoint_dir=model_ckpt)
                 trainer.train()
 
-            checkpoints.append(checkpoint_dir)
+            checkpoints.append(model_ckpt)
 
         metrics = {}
         for n, checkpoint_dir in enumerate(checkpoints):
