@@ -134,17 +134,25 @@ class GridSearcher:
         for n, dynamic_config in enumerate(self.all_dynamic_configs):
             logging.info('## 1st RUN: Configuration {}/{} ##'.format(n, len(self.all_dynamic_configs)))
             config = self.static_config.copy()
-            config.update({
-                'max_length': dynamic_config[0], 'max_length_output': dynamic_config[1], 'batch': dynamic_config[2],
-                'lr': dynamic_config[3], 'label_smoothing': dynamic_config[4], 'random_seed': dynamic_config[5],
-            })
-            print(ckpt_exist)
-            duplicated_ckpt = [k for k, v in ckpt_exist.items() if v == config]
-            print(duplicated_ckpt)
-            print(config)
+            tmp_dynamic_config = {
+                'max_length': dynamic_config[0],
+                'max_length_output': dynamic_config[1],
+                'batch': dynamic_config[2],
+                'lr': dynamic_config[3],
+                'label_smoothing': dynamic_config[4],
+                'random_seed': dynamic_config[5]
+            }
+            config.update(tmp_dynamic_config)
+            ex_dynamic_config = [[v[k] for k in sorted(tmp_dynamic_config.keys())] for v in ckpt_exist.values()]
+            tmp_dynamic_config = [tmp_dynamic_config[k] for k in sorted(tmp_dynamic_config.keys())]
+            print(ex_dynamic_config)
+            print(tmp_dynamic_config)
+            duplicated_ckpt = [v == tmp_dynamic_config for v in ex_dynamic_config]
+            print([v == tmp_dynamic_config for v in ex_dynamic_config])
+            print(any(v == tmp_dynamic_config for v in ex_dynamic_config))
             input()
 
-            if len(duplicated_ckpt) > 1:
+            if any(v == tmp_dynamic_config for v in ex_dynamic_config):
                 logging.info('skip as the config exists at {} \n{}'.format(duplicated_ckpt, config))
                 continue
 
