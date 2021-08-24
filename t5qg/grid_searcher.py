@@ -138,7 +138,11 @@ class GridSearcher:
                 'max_length': dynamic_config[0], 'max_length_output': dynamic_config[1], 'batch': dynamic_config[2],
                 'lr': dynamic_config[3], 'label_smoothing': dynamic_config[4], 'random_seed': dynamic_config[5],
             })
+            print(ckpt_exist)
             duplicated_ckpt = [k for k, v in ckpt_exist.items() if v == config]
+            print(duplicated_ckpt)
+            print(config)
+            input()
 
             if len(duplicated_ckpt) > 1:
                 logging.info('skip as the config exists at {} \n{}'.format(duplicated_ckpt, config))
