@@ -143,28 +143,25 @@ class GridSearcher:
                 'random_seed': dynamic_config[5]
             }
             config.update(tmp_dynamic_config)
-            ex_dynamic_config = [[v[k] for k in sorted(tmp_dynamic_config.keys())] for v in ckpt_exist.values()]
+            ex_dynamic_config = [(k_, [v[k] for k in sorted(tmp_dynamic_config.keys())]) for k_, v in ckpt_exist.items()]
             tmp_dynamic_config = [tmp_dynamic_config[k] for k in sorted(tmp_dynamic_config.keys())]
-            print(ex_dynamic_config)
-            print(tmp_dynamic_config)
-            duplicated_ckpt = [v == tmp_dynamic_config for v in ex_dynamic_config]
-            print([v == tmp_dynamic_config for v in ex_dynamic_config])
-            print(any(v == tmp_dynamic_config for v in ex_dynamic_config))
-            input()
+            duplicated_ckpt = [k for k, v in ex_dynamic_config if v == tmp_dynamic_config]
 
-            if any(v == tmp_dynamic_config for v in ex_dynamic_config):
+            if len(duplicated_ckpt) == 1:
                 logging.info('skip as the config exists at {} \n{}'.format(duplicated_ckpt, config))
-                continue
+                checkpoint_dir = duplicated_ckpt[0]
+            elif len(duplicated_ckpt) == 0:
+                ckpt_name_exist = [os.path.basename(k).replace('model_', '') for k in ckpt_exist.keys()]
+                ckpt_name_made = [os.path.basename(c).replace('model_', '') for c in checkpoints]
 
-            ckpt_name_exist = [os.path.basename(k).replace('model_', '') for k in ckpt_exist.keys()]
-            ckpt_name_made = [os.path.basename(c).replace('model_', '') for c in checkpoints]
-
-            model_ckpt = get_random_string(exclude=ckpt_name_exist + ckpt_name_made)
-            checkpoint_dir = '{}/model_{}'.format(self.checkpoint_dir, model_ckpt)
-            assert not os.path.exists('{}/epoch_{}'.format(checkpoint_dir, self.epoch_partial)),\
-                '{}/epoch_{}'.format(checkpoint_dir, self.epoch_partial)
-            trainer = Trainer(checkpoint_dir=checkpoint_dir, **config)
-            trainer.train(epoch_partial=self.epoch_partial, epoch_save=1)
+                model_ckpt = get_random_string(exclude=ckpt_name_exist + ckpt_name_made)
+                checkpoint_dir = '{}/model_{}'.format(self.checkpoint_dir, model_ckpt)
+                assert not os.path.exists('{}/epoch_{}'.format(checkpoint_dir, self.epoch_partial)),\
+                    '{}/epoch_{}'.format(checkpoint_dir, self.epoch_partial)
+                trainer = Trainer(checkpoint_dir=checkpoint_dir, **config)
+                trainer.train(epoch_partial=self.epoch_partial, epoch_save=1)
+            else:
+                raise ValueError('duplicated checkpoints are found: \n {}'.format(duplicated_ckpt))
 
             checkpoints.append(checkpoint_dir)
 
