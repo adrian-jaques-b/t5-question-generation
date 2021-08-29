@@ -15,8 +15,19 @@ import gdown
 from .lm_t5 import TASK_PREFIX, ADDITIONAL_SP_TOKENS
 from .sentence_split import SentSplit
 
-__all__ = 'get_dataset'
+__all__ = ('get_dataset', 'jsonline_reader', 'jsonline_writer')
 DEFAULT_CACHE_DIR = '{}/.cache/t5qg'.format(os.path.expanduser('~'))
+
+
+def jsonline_reader(filename: str):
+    with open(filename, 'r') as f:
+        examples = [json.loads(i) for i in f.read().split('\n') if len(i) > 0]
+    return examples
+
+
+def jsonline_writer(data, export):
+    with open(export, 'w') as f:
+        f.write('\n'.join([json.dumps(x) for x in data]))
 
 
 def get_dataset(name,
@@ -107,19 +118,22 @@ class Dataset:
             os.makedirs(os.path.dirname(path), exist_ok=True)
             # exclude YES/NO questions or unanswerable questions
             if os.path.exists(output):
-                with open(output, 'r') as f:
-                    examples = [json.loads(i) for i in f.read().split('\n') if len(i) > 0]
+                examples = jsonline_reader(output)
+                # with open(output, 'r') as f:
+                #     examples = [json.loads(i) for i in f.read().split('\n') if len(i) > 0]
             else:
                 if not os.path.exists(path):
                     wget('https://github.com/asahi417/t5-question-generation/releases/download/0.0.0/{}.zip'.format(self.data_alias),
                          cache_dir='{}/raw'.format(self.cache))
-                with open(path, 'r') as f:
-                    data = [json.loads(i) for i in f.read().split('\n') if len(i)]
+                data = jsonline_reader(path)
+                # with open(path, 'r') as f:
+                #     data = [json.loads(i) for i in f.read().split('\n') if len(i)]
                 examples = []
                 for _data in tqdm(data):
                     examples += self.process_single_data(_data)
-                with open(output, 'w') as f:
-                    f.write('\n'.join([json.dumps(x) for x in examples]))
+                jsonline_writer(data=examples, export=output)
+                # with open(output, 'w') as f:
+                #     f.write('\n'.join([json.dumps(x) for x in examples]))
             full_examples += examples
         if task_type is None:
             return full_examples
