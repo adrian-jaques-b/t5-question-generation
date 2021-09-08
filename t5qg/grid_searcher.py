@@ -97,8 +97,6 @@ class GridSearcher:
                 tmp = json.load(f)
             tmp_v = [tmp[k] for k in sorted(tmp.keys())]
             static_tmp_v = [self.static_config[k] for k in sorted(tmp.keys())]
-            print(tmp_v)
-            print(static_tmp_v)
             assert tmp_v == static_tmp_v
 
         if os.path.exists('{}/config_dynamic.json'.format(self.checkpoint_dir)):

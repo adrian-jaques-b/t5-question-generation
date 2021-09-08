@@ -8,3 +8,4 @@ common_word_pairs.pkl
 gensim-vector.tmp
 model_hub
 NOTE.md
+tests/metric

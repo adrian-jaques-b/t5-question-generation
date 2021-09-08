@@ -4,10 +4,7 @@ For the model training, we rely on the multitasking objective where the models a
 for the question answering and the answer extraction in addition to the question generation
 following [huggingface tutorial](https://github.com/patil-suraj/question_generation).
 
-We extend the library to cover recently released multilingual T5, namely [mT5](https://arxiv.org/pdf/2010.11934.pdf).
-
-## TODO
-- create separate evaluation script
+[comment]: <> (We extend the library to cover recently released multilingual T5, namely [mT5]&#40;https://arxiv.org/pdf/2010.11934.pdf&#41;.)
 
 ### Get Started 🚀
 ```shell
