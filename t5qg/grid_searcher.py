@@ -159,15 +159,14 @@ class GridSearcher:
             elif len(duplicated_ckpt) == 0:
                 ckpt_name_exist = [os.path.basename(k).replace('model_', '') for k in ckpt_exist.keys()]
                 ckpt_name_made = [os.path.basename(c).replace('model_', '') for c in checkpoints]
-
                 model_ckpt = get_random_string(exclude=ckpt_name_exist + ckpt_name_made)
                 checkpoint_dir = '{}/model_{}'.format(self.checkpoint_dir, model_ckpt)
-                assert not os.path.exists('{}/epoch_{}'.format(checkpoint_dir, self.epoch_partial)),\
-                    '{}/epoch_{}'.format(checkpoint_dir, self.epoch_partial)
-                trainer = Trainer(checkpoint_dir=checkpoint_dir, **config)
-                trainer.train(epoch_partial=self.epoch_partial, epoch_save=1)
             else:
                 raise ValueError('duplicated checkpoints are found: \n {}'.format(duplicated_ckpt))
+
+            if not os.path.exists('{}/epoch_{}'.format(checkpoint_dir, self.epoch_partial)):
+                trainer = Trainer(checkpoint_dir=checkpoint_dir, **config)
+                trainer.train(epoch_partial=self.epoch_partial, epoch_save=1)
 
             checkpoints.append(checkpoint_dir)
 

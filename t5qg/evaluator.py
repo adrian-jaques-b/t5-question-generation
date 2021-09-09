@@ -33,7 +33,8 @@ def evaluate_qg(model: str,
     for split in ['dev', 'test']:
         path_hypothesis = '{}/samples.{}.hyp.txt'.format(export_dir, split)
         path_reference = '{}/samples.{}.ref.txt'.format(export_dir, split)
-        if not os.path.exists(path_hypothesis) or not os.path.exists(path_reference):
+
+        def generate_samples():
             raw_input, raw_output = get_dataset(dataset,
                                                 split=split,
                                                 language=language,
@@ -51,8 +52,16 @@ def evaluate_qg(model: str,
             with open(path_reference, 'w') as f:
                 f.write('\n'.join(raw_output))
 
-        metrics_dict[split] = compute_metrics(hypothesis=path_hypothesis, references=[path_reference],
-                                              no_skipthoughts=True, no_glove=True)
+        if not os.path.exists(path_hypothesis) or not os.path.exists(path_reference):
+            generate_samples()
+
+        try:
+            metrics_dict[split] = compute_metrics(hypothesis=path_hypothesis, references=[path_reference],
+                                                  no_skipthoughts=True, no_glove=True)
+        except Exception:
+            generate_samples()
+            metrics_dict[split] = compute_metrics(hypothesis=path_hypothesis, references=[path_reference],
+                                                  no_skipthoughts=True, no_glove=True)
 
     with open(path_metric, 'w') as f:
         json.dump(metrics_dict, f)
