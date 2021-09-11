@@ -18,6 +18,7 @@ def evaluate_qg(model: str,
                 batch: int = 128,
                 num_beams: int = 4,
                 random_seed:  int = 32):
+    """ Evaluate question-generation model """
     path_metric = '{}/metric.json'.format(export_dir)
     if os.path.exists(path_metric):
         with open(path_metric, 'r') as f:
@@ -66,5 +67,3 @@ def evaluate_qg(model: str,
     with open(path_metric, 'w') as f:
         json.dump(metrics_dict, f)
     return metrics_dict
-
-

@@ -15,7 +15,7 @@ import gdown
 from .lm_t5 import TASK_PREFIX, ADDITIONAL_SP_TOKENS
 from .sentence_split import SentSplit
 
-__all__ = ('get_dataset', 'jsonline_reader', 'jsonline_writer')
+__all__ = ('get_dataset', 'jsonline_reader', 'jsonline_writer', 'wget')
 DEFAULT_CACHE_DIR = '{}/.cache/t5qg'.format(os.path.expanduser('~'))
 
 
@@ -35,13 +35,21 @@ def get_dataset(name,
                 task_type: List or str = 'qg',
                 language: List or str = 'en',
                 cache_dir: str = None,
-                no_prefix: bool = False):
+                no_prefix: bool = False,
+                return_raw_triplet: bool = False):
     language = [language] if type(language) is str else language
     task_type = [task_type] if type(task_type) is str else task_type
-    data = Dataset(name, cache_dir, no_prefix=no_prefix).get_data(split, language=language, task_type=task_type)
-    input_texts = [i["source_text"] for i in data]
-    output_texts = [i["target_text"] for i in data]
-    return input_texts, output_texts
+    data = Dataset(name, cache_dir, no_prefix=no_prefix).get_data(
+        split, language=language, task_type=task_type, return_raw_triplet=return_raw_triplet)
+    if return_raw_triplet:
+        context = [i["context"] for i in data]
+        question = [i["question"] for i in data]
+        answer = [i["answer"] for i in data]
+        return context, question, answer
+    else:
+        input_texts = [i["source_text"] for i in data]
+        output_texts = [i["target_text"] for i in data]
+        return input_texts, output_texts
 
 
 def wget(url, cache_dir: str, gdrive_filename: str = None):
@@ -94,13 +102,16 @@ class Dataset:
         self.no_prefix = no_prefix
         logging.info('instantiate data processor')
 
-    def get_data(self, split: str = 'train', language: List = None, task_type: List = None):
+    def get_data(self, split: str = 'train', language: List = None, task_type: List = None,
+                 return_raw_triplet: bool = False):
         if self.data_alias == 'squad':
             language = [None]
         else:
             language = self.all_language_alias_tydiqa if language is None else language
         assert split in ['train', 'dev', 'test'], split
-        if self.no_prefix:
+        if return_raw_triplet:
+            output_prefix = '{}/{}/processed/{}.raw'.format(self.cache, self.data_alias, split)
+        elif self.no_prefix:
             output_prefix = '{}/{}/processed/{}.no_prefix'.format(self.cache, self.data_alias, split)
         else:
             output_prefix = '{}/{}/processed/{}'.format(self.cache, self.data_alias, split)
@@ -119,23 +130,20 @@ class Dataset:
             # exclude YES/NO questions or unanswerable questions
             if os.path.exists(output):
                 examples = jsonline_reader(output)
-                # with open(output, 'r') as f:
-                #     examples = [json.loads(i) for i in f.read().split('\n') if len(i) > 0]
             else:
                 if not os.path.exists(path):
                     wget('https://github.com/asahi417/t5-question-generation/releases/download/0.0.0/{}.zip'.format(self.data_alias),
                          cache_dir='{}/raw'.format(self.cache))
                 data = jsonline_reader(path)
-                # with open(path, 'r') as f:
-                #     data = [json.loads(i) for i in f.read().split('\n') if len(i)]
                 examples = []
                 for _data in tqdm(data):
-                    examples += self.process_single_data(_data)
+                    if return_raw_triplet:
+                        examples.append({i: _data[i] for i in ["context", "question", "answer"]})
+                    else:
+                        examples += self.process_single_data(_data)
                 jsonline_writer(data=examples, export=output)
-                # with open(output, 'w') as f:
-                #     f.write('\n'.join([json.dumps(x) for x in examples]))
             full_examples += examples
-        if task_type is None:
+        if task_type is None or return_raw_triplet:
             return full_examples
         else:
             assert all(i in TASK_PREFIX for i in task_type), task_type
@@ -174,7 +182,6 @@ class Dataset:
             else:
                 source_text = "{}: {}  context: {}".format(TASK_PREFIX['qa'], question, context)
             examples.append({"source_text": re.sub(r'\s+', ' ', source_text), "target_text": answer, "task": "qa"})
-
         if 'qg' in TASK_PREFIX:
             position = context.find(answer)
             assert position != -1

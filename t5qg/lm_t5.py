@@ -384,6 +384,8 @@ class T5:
                 encode['num_beams'] = num_beams
                 tensor = self.model.module.generate(**encode) if self.parallel else self.model.generate(**encode)
                 outputs += self.tokenizer.batch_decode(tensor, skip_special_tokens=True)
+                print(outputs[-1])
+                input()
         return outputs
 
     def encode_to_loss(self, encode: Dict):
