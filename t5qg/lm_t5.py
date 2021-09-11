@@ -366,6 +366,7 @@ class T5:
         self.eval()
         assert type(list_context) == list, list_context
         # if highlight is not given, run answer extraction to get it
+        print(list_context[:10])
         loader = self.get_data_loader(list_context,
                                       highlights=list_highlight,
                                       task_prefix=task_type,
