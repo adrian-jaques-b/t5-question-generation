@@ -366,7 +366,6 @@ class T5:
         self.eval()
         assert type(list_context) == list, list_context
         # if highlight is not given, run answer extraction to get it
-        print(list_context[:10])
         loader = self.get_data_loader(list_context,
                                       highlights=list_highlight,
                                       task_prefix=task_type,
@@ -381,15 +380,10 @@ class T5:
         for encode in loader:
             with torch.no_grad():
                 encode = {k: v.to(self.device) for k, v in encode.items()}
-                print(self.max_length_output)
                 encode['max_length'] = self.max_length_output
                 encode['num_beams'] = num_beams
-                print(self.tokenizer.batch_decode(encode['input_ids'], skip_special_tokens=True))
                 tensor = self.model.module.generate(**encode) if self.parallel else self.model.generate(**encode)
-                print(tensor)
                 outputs += self.tokenizer.batch_decode(tensor, skip_special_tokens=True)
-                print(outputs[-1])
-                input()
         return outputs
 
     def encode_to_loss(self, encode: Dict):
