@@ -1,4 +1,4 @@
-""" Fine-tune T5. """
+""" Parameter optimization of Question Generation Finetuning. """
 import argparse
 import logging
 
@@ -6,18 +6,18 @@ from t5qg import GridSearcher
 
 
 def get_options():
-    parser = argparse.ArgumentParser(description='Fine-tune T5 (with grid search).')
+    parser = argparse.ArgumentParser(description='Parameter optimization of Question Generation Finetuning.')
     # model training configuration
     parser.add_argument('-c', '--checkpoint-dir', help='directory to save checkpoint', required=True, type=str)
     parser.add_argument('-d', '--dataset', help='dataset', default='squad', type=str)
     parser.add_argument('-m', '--model', help='pretrained language model', default='t5-small', type=str)
     parser.add_argument('-e', '--epoch', help='epoch', default=10, type=int)
     parser.add_argument('-g', '--gradient-accumulation-steps', help='', default=4, type=int)
-    parser.add_argument('--task-type', help='task type', default='qg', type=str)
     parser.add_argument('--language', help='language', default='en', type=str)
     parser.add_argument('-b', '--batch', help='batch size', default=128, type=int)
     parser.add_argument('--fp16', help='fp16', action='store_true')
     parser.add_argument("--lr-warmup", help="linear warmup of lr", default=None, type=int)
+    parser.add_argument('--task-type', help='task type', default='qg', type=str)
 
     # monitoring parameter
     parser.add_argument('--debug', help='log mode', action='store_true')
@@ -40,11 +40,13 @@ def main():
     opt = get_options()
     level = logging.DEBUG if opt.debug else logging.INFO
     logging.basicConfig(format='%(asctime)s %(levelname)-8s %(message)s', level=level, datefmt='%Y-%m-%d %H:%M:%S')
+    task_type = opt.task_type.split(',')
+    assert 'qg' in task_type, 'qg must be in the task type'
     # train model
     trainer = GridSearcher(
         checkpoint_dir=opt.checkpoint_dir,
         dataset=opt.dataset,
-        task_type=opt.task_type.split(','),
+        task_type=task_type,
         language=opt.language.split(','),
         model=opt.model,
         lr_warmup=opt.lr_warmup,

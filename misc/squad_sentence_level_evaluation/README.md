@@ -80,8 +80,8 @@ what company did ray kroc own ?
 ```
 In our evaluation script, we normalize the model prediction following NQG pipeline when we compute sentence-level metric but the question-level metric relies on raw references.
 
-### Question Level Metric
-If the model is conditioned by the answer and can generate diverse question within a sentence, we can conduct question-level metric. Essentially, 
+### Answer Level Metric
+If the model is conditioned by the answer and can generate diverse answer within a sentence, we can conduct question-level metric. Essentially, 
 we can compute the sequence metric per question, and this should be more challenging yet realistic metric than the sentence-level metric.
 In our script, we don't apply the NQG's normalization and compute the metric on the raw reference.
 

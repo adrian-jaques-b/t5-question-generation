@@ -2,12 +2,14 @@
 import argparse
 import json
 
-import nqgeval_tool  # for sentence-level evaluation
+import qgeval_sentence_level  # for sentence-level evaluation
 import nlgeval  # for question-level evaluation
 
 REF_SENT_LEVEL = './processed'
 REF_Q_LEVEL = './raw'
 
+def nlgeval_():
+    qgeval_sentence_level.text_normalization()
 
 def get_options():
     parser = argparse.ArgumentParser(description='Sentence/question level QG evaluation.')
@@ -25,13 +27,13 @@ if __name__ == '__main__':
             continue
         metrics[split] = {}
         for prediction_aggregation in ['first', 'last', 'long', 'short', 'middle']:
-            metrics[split]['sentence_level/{}'.format(prediction_aggregation)] = nqgeval_tool.compute_metrics(
+            metrics[split]['sentence_level/{}'.format(prediction_aggregation)] = qgeval_sentence_level.compute_metrics(
                 out_file=path_h,
                 src_file='{}/src-{}.txt'.format(REF_SENT_LEVEL, split),
                 tgt_file='{}/tgt-{}.txt'.format(REF_SENT_LEVEL, split),
                 prediction_aggregation=prediction_aggregation
             )
-        metrics[split]['question_level'] = nlgeval.compute_metrics(
+        metrics[split]['answer_level'] = nlgeval.compute_metrics(
             hypothesis=path_h,
             references=['{}/samples.{}.ref.txt'.format(REF_Q_LEVEL, split)],
             no_skipthoughts=True,
