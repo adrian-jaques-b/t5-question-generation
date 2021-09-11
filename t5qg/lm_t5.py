@@ -381,11 +381,13 @@ class T5:
         for encode in loader:
             with torch.no_grad():
                 encode = {k: v.to(self.device) for k, v in encode.items()}
+                print(self.max_length_output)
                 encode['max_length'] = self.max_length_output
                 encode['num_beams'] = num_beams
+                print(self.tokenizer.batch_decode(encode['input_ids'], skip_special_tokens=True))
                 tensor = self.model.module.generate(**encode) if self.parallel else self.model.generate(**encode)
-                outputs += self.tokenizer.batch_decode(tensor, skip_special_tokens=True)
                 print(tensor)
+                outputs += self.tokenizer.batch_decode(tensor, skip_special_tokens=True)
                 print(outputs[-1])
                 input()
         return outputs
