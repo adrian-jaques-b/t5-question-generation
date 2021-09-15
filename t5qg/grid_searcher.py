@@ -192,12 +192,12 @@ class GridSearcher:
                     metric = json.load(f)
                     metrics[checkpoint_dir_model] = metric[self.split][self.metric]
 
-        metrics = sorted(metrics.items(), key=lambda x: x[1], reverse=True)
+            metrics = sorted(metrics.items(), key=lambda x: x[1], reverse=True)
+            with open(path_to_metric_1st, 'w') as f:
+                json.dump(metrics, f)
         logging.info('1st RUN RESULTS ({}/{})'.format(self.split, self.metric))
         for n, (k, v) in enumerate(metrics):
             logging.info('\t * rank: {} | metric: {} | model: {} |'.format(n, round(v, 3), k))
-        with open(path_to_metric_1st, 'w') as f:
-            json.dump(metrics, f)
 
         ###########
         # 2nd RUN #
