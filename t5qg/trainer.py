@@ -193,6 +193,8 @@ class Trainer:
             language=self.config.language,
             task_type=self.config.task_type,
             no_prefix=self.model.no_prefix)
+        print(len(raw_input), len(raw_output))
+        input()
         loader = self.model.get_data_loader(
             raw_input,
             raw_output,

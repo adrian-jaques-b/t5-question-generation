@@ -1,3 +1,4 @@
+""" Evaluate model on answer-level QG """
 import json
 import os
 import random
@@ -17,7 +18,7 @@ def evaluate_qg(model: str,
                 max_length_output: int = 32,
                 batch: int = 128,
                 num_beams: int = 4,
-                random_seed:  int = 32):
+                random_seed: int = 32):
     """ Evaluate question-generation model """
     path_metric = '{}/metric.json'.format(export_dir)
     if os.path.exists(path_metric):

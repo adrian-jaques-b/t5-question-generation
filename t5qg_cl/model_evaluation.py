@@ -1,4 +1,4 @@
-""" evaluate T5. """
+""" Evaluate generated question from a model checkpoint with answer level metric. """
 import argparse
 import logging
 from t5qg import evaluate_qg
