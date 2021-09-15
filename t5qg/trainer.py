@@ -194,7 +194,6 @@ class Trainer:
             language=self.config.language,
             task_type=self.config.task_type,
             no_prefix=self.model.no_prefix)
-        print(len(raw_input), len(raw_output))
         loader = self.model.get_data_loader(
             raw_input,
             raw_output,
@@ -205,8 +204,6 @@ class Trainer:
             cache_path=self.data_cache_dir,
             drop_overflow_text=True,
             parallel=True)
-        print(len(loader))
-        input()
         self.model.train()
 
         logging.info('start model training')
