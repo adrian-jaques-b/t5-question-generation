@@ -170,28 +170,33 @@ class GridSearcher:
 
             checkpoints.append(checkpoint_dir)
 
-        metrics = {}
-        for n, checkpoint_dir in enumerate(checkpoints):
-            logging.info('## 1st RUN (EVAL): Configuration {}/{} ##'.format(n, len(checkpoints)))
-            checkpoint_dir_model = '{}/epoch_{}'.format(checkpoint_dir, self.epoch_partial)
-            if not os.path.exists('{}/eval/metric.json'.format(checkpoint_dir_model)):
-                try:
-                    evaluate_qg(model=checkpoint_dir_model,
-                                export_dir='{}/eval'.format(checkpoint_dir_model),
-                                batch=self.batch_eval)
-                except Exception:
-                    logging.exception('ERROR IN EVALUATION')
-                    continue
+        path_to_metric_1st = '{}/metric.1st.json'.format(self.checkpoint_dir)
+        if os.path.exists(path_to_metric_1st):
+            with open(path_to_metric_1st) as f:
+                metrics = json.load(f)
+        else:
+            metrics = {}
+            for n, checkpoint_dir in enumerate(checkpoints):
+                logging.info('## 1st RUN (EVAL): Configuration {}/{} ##'.format(n, len(checkpoints)))
+                checkpoint_dir_model = '{}/epoch_{}'.format(checkpoint_dir, self.epoch_partial)
+                if not os.path.exists('{}/eval/metric.json'.format(checkpoint_dir_model)):
+                    try:
+                        evaluate_qg(model=checkpoint_dir_model,
+                                    export_dir='{}/eval'.format(checkpoint_dir_model),
+                                    batch=self.batch_eval)
+                    except Exception:
+                        logging.exception('ERROR IN EVALUATION')
+                        continue
 
-            with open('{}/eval/metric.json'.format(checkpoint_dir_model), 'r') as f:
-                metric = json.load(f)
-                metrics[checkpoint_dir_model] = metric[self.split][self.metric]
+                with open('{}/eval/metric.json'.format(checkpoint_dir_model), 'r') as f:
+                    metric = json.load(f)
+                    metrics[checkpoint_dir_model] = metric[self.split][self.metric]
 
         metrics = sorted(metrics.items(), key=lambda x: x[1], reverse=True)
         logging.info('1st RUN RESULTS ({}/{})'.format(self.split, self.metric))
         for n, (k, v) in enumerate(metrics):
             logging.info('\t * rank: {} | metric: {} | model: {} |'.format(n, round(v, 3), k))
-        with open('{}/metric.1st.json'.format(self.checkpoint_dir), 'w') as f:
+        with open(path_to_metric_1st, 'w') as f:
             json.dump(metrics, f)
 
         ###########

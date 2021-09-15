@@ -126,12 +126,13 @@ class Trainer:
         self.scaler = torch.cuda.amp.GradScaler(enabled=self.config.fp16)
 
         # cached data folder
-        self.data_cache_dir = '{}/data_{}_encoded/{}.{}.{}.pkl'.format(
+        self.data_cache_dir = '{}/data_{}_encoded/{}.{}.{}.{}.pkl'.format(
             DEFAULT_CACHE_DIR,
             self.config.dataset,
             self.config.model,
             self.config.max_length,
-            self.config.max_length_output
+            self.config.max_length_output,
+            '_'.join(sorted(self.config.task_type))
         )
         if self.config.dataset == 'tydiqa':
             self.data_cache_dir = self.data_cache_dir.replace('.pkl', '') \
